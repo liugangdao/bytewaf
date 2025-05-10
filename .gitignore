@@ -1,0 +1,6 @@
+model_save/*
+!model_save/model.onnx
+data/
+__pycache__/
+.vscode/
+.pytest_cache/

@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  waf:
+    build:
+      context: ./src
+    ports:
+      - "5557:80"
+    depends_on:
+      - onnx-service
+    environment:
+      - ONNX_SERVICE_URL=http://172.31.0.11:5555/detect
+    networks:
+      custom_net:
+        ipv4_address: 172.31.0.10
+
+  onnx-service:
+    build:
+      context: ./script
+    ports:
+      - "5555:5555"
+    volumes:
+      - ./model_save/model.onnx:/app/model_save/model.onnx
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    runtime: nvidia
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+    networks:
+      custom_net:
+        ipv4_address: 172.31.0.11
+
+networks:
+  custom_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/16
